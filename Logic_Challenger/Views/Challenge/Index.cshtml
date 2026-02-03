@@ -1,9 +1,90 @@
 ﻿@model Logic_Challenger.Models.ChallengeViewModel
 
-@{
-    ViewData["Title"] = "Generate Challenge";
-}
+<style>
+    body, html {
+        height: 100%;
+        overflow: hidden;
+        margin: 0;
+        background-color: #001f3f;
+        color: white;
+    }
 
-<small>@Model.Category</small>
-<h1>@Model.Question</h1>
-<p>@Model.Difficulty</p>
+    p{
+        font-size: 1rem;
+    }
+
+    @@media (min-width: 768px) {
+        p
+        {
+            font-size: 1.5rem;
+        }
+    }
+
+</style>
+
+<div class="d-flex flex-column vh-100">
+    <div class="flex-grow-1 d-flex flex-column justify-content-center align-items-center container">
+        <div class="text-center">
+            @if (@Model.CreatedQuestion == true)
+            {
+                <p>Dificuldade: @Model.Difficulty</p>
+            }
+        </div>
+
+        <div class="mb-2 text-center">
+            <h1>@Model.Question</h1>
+            @if (@Model.CreatedQuestion == false)
+            {
+                <span>insira uma dificuldade de 1 a 5</span>
+            }
+        </div>
+
+        <div class="text-center">           
+            <form method="post" asp-controller="Challenge" asp-action="GenerateTest" onsubmit="Loading()">
+                <div class="input-group">
+                    <input type="number" name="difficulty" min="1" max="5" value="1" class="form-control" style="max-width: 3rem;" required>
+                    <button type="submit" class="btn btn-primary">Gerar Desafio</button>
+                </div>
+            </form>
+        </div>
+
+        <div id="load" class="text-center mt-3" style="visibility: hidden;">
+            <p class="badge bg-warning text-dark shadow fs-6">Pensando...</p>
+        </div>
+    </div>
+
+    <div class="text-center container">
+        <p>@Model.Feedback</p>
+    </div>
+
+    <div class="w-100 mb-5 container">
+        @if(@Model.CreatedQuestion == true)
+        {
+            <form method="post" asp-controller="Challenge" asp-action="CheckAnswer" onsubmit="Loading()">
+                <div class="input-group mb-3">
+                    <input type="text" name="UserAnswer" class="form-control form-control-lg" required>
+                    <button type="submit" class="btn btn-primary">Responder</button>
+                </div>
+
+
+                <input type="hidden" value="@Model.Question" name="OriginalQuestion">
+                <input type="hidden" value="@Model.Answer" name="CorrectAnswer">
+                <input type="hidden" value="@Model.Difficulty" name="Difficulty">
+            </form>
+        }
+    </div>
+</div>
+
+<script>
+    const loading = document.getElementById('load');
+    const buttons = document.querySelectorAll('button[type="submit"]');
+
+    function Loading() {
+        loading.style.visibility = 'visible';
+        
+        buttons.forEach(function(btn)
+        {
+            btn.disabled = true;
+        });
+    }
+</script>
